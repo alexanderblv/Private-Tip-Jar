@@ -8,6 +8,10 @@ import { WalletConnectButton } from '@/components/wallet/WalletConnectButton'
 export const metadata: Metadata = {
   title: 'Private Tip Jar',
   description: 'Private tipping on Aleo',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({ children }: PropsWithChildren) {
