@@ -24,8 +24,10 @@ export function WalletConnectButton() {
         } catch (error) {
           console.error('Error during connection:', error)
           if (error instanceof Error) {
-            if (error.message.includes('NETWORK_NOT_GRANTED')) {
-              alert('Please grant network permission in your Leo Wallet')
+            if (error.message.includes('NETWORK_NOT_GRANTED') || error.message.includes('NETWORK_NOT_GRANTED')) {
+              alert('🔗 Network Permission Required\n\nPlease follow these steps:\n1. Open your Leo Wallet extension\n2. Go to Settings → Networks\n3. Make sure "Testnet" is enabled\n4. Try connecting again')
+            } else if (error.message.includes('User rejected')) {
+              alert('Connection was cancelled by user')
             } else {
               alert(`Connection error: ${error.message}`)
             }
@@ -61,10 +63,23 @@ export function WalletConnectButton() {
       
       // Если кошелек уже выбран, подключаемся напрямую
       if (wallet && wallet.adapter.name === LeoWalletName) {
-        await connect(
-          DecryptPermission.NoDecrypt,
-          (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
-        )
+        try {
+          await connect(
+            DecryptPermission.NoDecrypt,
+            (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
+          )
+        } catch (error) {
+          console.error('Error in direct connect:', error)
+          if (error instanceof Error) {
+            if (error.message.includes('NETWORK_NOT_GRANTED') || error.message.includes('NETWORK_NOT_GRANTED')) {
+              alert('🔗 Network Permission Required\n\nPlease follow these steps:\n1. Open your Leo Wallet extension\n2. Go to Settings → Networks\n3. Make sure "Testnet" is enabled\n4. Try connecting again')
+            } else if (error.message.includes('User rejected')) {
+              alert('Connection was cancelled by user')
+            } else {
+              alert(`Connection error: ${error.message}`)
+            }
+          }
+        }
         setIsConnecting(false)
       } else {
         // Выбираем кошелек и устанавливаем флаг для подключения
@@ -75,6 +90,9 @@ export function WalletConnectButton() {
     } catch (error) {
       console.error('Error in doConnect:', error)
       setIsConnecting(false)
+      if (error instanceof Error) {
+        alert(`Unexpected error: ${error.message}`)
+      }
     }
   }
 

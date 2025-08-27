@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { PropsWithChildren } from 'react'
 import { WalletProviderWrapper } from '@/components/wallet/WalletProviderWrapper'
 import { WalletConnectButton } from '@/components/wallet/WalletConnectButton'
+import { WalletStatus } from '@/components/wallet/WalletStatus'
 
 export const metadata: Metadata = {
   title: 'Private Tip Jar',
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
               <div className="flex items-center gap-4">
                 <Link href="/workers" className="text-sm">Workers</Link>
                 <Link href="/profile" className="text-sm">My Profile</Link>
+                <WalletStatus />
                 <WalletConnectButton />
               </div>
             </nav>
