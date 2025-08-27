@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User, Utensils, Wallet, Building, Camera, FileText } from 'lucide-react'
 
-export default function RegisterPage() {
+export const dynamic = 'force-dynamic'
+
+function RegisterContent() {
   const searchParams = useSearchParams()
   const initialRole = searchParams.get('role') || ''
   const [selectedRole, setSelectedRole] = useState<'tipper' | 'worker' | ''>(initialRole as any || '')
@@ -261,5 +263,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterContent />
+    </Suspense>
   )
 }
