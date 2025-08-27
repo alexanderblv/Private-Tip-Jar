@@ -6,8 +6,8 @@ import { WalletProviderWrapper } from '@/components/wallet/WalletProviderWrapper
 import { WalletConnectButton } from '@/components/wallet/WalletConnectButton'
 
 export const metadata: Metadata = {
-  title: 'Private Tip Jar',
-  description: 'Private tipping on Aleo',
+  title: 'Private Tip Jar - Anonymous Tipping on Aleo Blockchain',
+  description: 'Send and receive tips completely anonymously using Aleo blockchain technology',
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.ico',
@@ -17,23 +17,39 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white">
         <WalletProviderWrapper>
-          <header className="border-b border-white/10">
-            <nav className="container h-14 flex items-center justify-between">
-              <Link href="/" className="font-semibold">Private Tip Jar</Link>
+          <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-50">
+            <nav className="container mx-auto h-16 flex items-center justify-between px-4">
+              <Link href="/" className="font-bold text-xl flex items-center gap-2">
+                <span className="text-2xl">💰</span>
+                Private Tip Jar
+              </Link>
+              <div className="hidden md:flex items-center gap-6">
+                <Link href="/" className="text-sm hover:text-blue-400 transition-colors">Home</Link>
+                <Link href="/how-it-works" className="text-sm hover:text-blue-400 transition-colors">How It Works</Link>
+                <Link href="/about" className="text-sm hover:text-blue-400 transition-colors">About</Link>
+                <Link href="/faq" className="text-sm hover:text-blue-400 transition-colors">FAQ</Link>
+                <Link href="/waiters" className="text-sm hover:text-blue-400 transition-colors">Find Workers</Link>
+                <Link href="/register" className="text-sm hover:text-blue-400 transition-colors">Register</Link>
+              </div>
               <div className="flex items-center gap-4">
-                <Link href="/workers" className="text-sm">Workers</Link>
-                <Link href="/profile" className="text-sm">My Profile</Link>
                 <WalletConnectButton />
               </div>
             </nav>
           </header>
-          <main className="container py-8">
+          <main className="min-h-screen">
             {children}
           </main>
-          <footer className="container py-8 text-xs text-white/60">
-            Built for Aleo CodeSprint v4.0
+          <footer className="bg-black/20 border-t border-white/10 py-8">
+            <div className="container mx-auto px-4 text-center text-sm text-white/60">
+              <p>Built for Aleo CodeSprint v4.0 - Private tipping on Aleo blockchain</p>
+              <div className="flex justify-center gap-6 mt-4">
+                <Link href="/about" className="hover:text-white transition-colors">About</Link>
+                <Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link>
+                <Link href="/faq" className="hover:text-white transition-colors">FAQ</Link>
+              </div>
+            </div>
           </footer>
         </WalletProviderWrapper>
       </body>
