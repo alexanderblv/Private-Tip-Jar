@@ -25,6 +25,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
               <div className="flex items-center gap-4">
                 <Link href="/workers" className="text-sm">Workers</Link>
                 <Link href="/profile" className="text-sm">My Profile</Link>
+                <Link href="/wallet-test" className="text-sm text-yellow-400">Wallet Test</Link>
                 <WalletConnectButton />
               </div>
             </nav>
