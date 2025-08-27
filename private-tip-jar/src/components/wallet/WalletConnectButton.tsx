@@ -5,6 +5,7 @@ import { DecryptPermission, WalletAdapterNetwork } from '@demox-labs/aleo-wallet
 import { LeoWalletName } from '@demox-labs/aleo-wallet-adapter-leo'
 import { useEffect, useState } from 'react'
 import { WalletTroubleshooting } from './WalletTroubleshooting'
+import { WalletDiagnostics } from './WalletDiagnostics'
 import { WALLET_CONFIG } from '@/lib/wallet-config'
 
 export function WalletConnectButton() {
@@ -12,6 +13,7 @@ export function WalletConnectButton() {
   const [isConnecting, setIsConnecting] = useState(false)
   const [shouldConnect, setShouldConnect] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   // Эффект для подключения после выбора кошелька
   useEffect(() => {
@@ -27,15 +29,19 @@ export function WalletConnectButton() {
           
           await connect(DecryptPermission.NoDecrypt, network)
           console.log('Successfully connected!')
+          setRetryCount(0) // Reset retry count on success
         } catch (error) {
           console.error('Error during connection:', error)
           if (error instanceof Error) {
             if (error.message.includes('NETWORK_NOT_GRANTED')) {
-              setError('Network permission not granted. Please check your Leo Wallet settings and ensure it has permission to access this site.')
+              setError('Network permission not granted. Please open your Leo Wallet extension and ensure it has permission to access this site. You may need to approve the connection in the wallet popup.')
             } else if (error.message.includes('User rejected')) {
               setError('Connection was rejected by the user.')
             } else if (error.message.includes('Wallet not found')) {
               setError('Leo Wallet not found. Please make sure the extension is installed and enabled.')
+            } else if (error.message.includes('unknown error')) {
+              // This is likely the NETWORK_NOT_GRANTED error wrapped in a generic message
+              setError('Network permission issue detected. Please check your Leo Wallet extension settings and try again.')
             } else {
               setError(`Connection error: ${error.message}`)
             }
@@ -95,8 +101,34 @@ export function WalletConnectButton() {
     }
   }
 
+  const retryConnection = () => {
+    setRetryCount(prev => prev + 1)
+    setError(null)
+    doConnect()
+  }
+
   const clearError = () => {
     setError(null)
+  }
+
+  const openLeoWallet = () => {
+    // Try to open Leo Wallet extension
+    if (typeof window !== 'undefined') {
+      // Try multiple ways to open the wallet
+      try {
+        // Method 1: Try to trigger the wallet popup
+        if ((window as any).leoWallet) {
+          (window as any).leoWallet.open()
+        }
+        // Method 2: Try to click the extension icon programmatically
+        const extensionButton = document.querySelector('[data-testid="leo-wallet-button"]') as HTMLElement
+        if (extensionButton) {
+          extensionButton.click()
+        }
+      } catch (e) {
+        console.log('Could not programmatically open Leo Wallet')
+      }
+    }
   }
 
   if (!connected) {
@@ -115,9 +147,35 @@ export function WalletConnectButton() {
               <span>{error}</span>
               <button onClick={clearError} className="text-red-300 hover:text-red-100 ml-2">×</button>
             </div>
+            
+            {/* Special handling for network permission errors */}
+            {error.includes('Network permission') && (
+              <div className="mt-2 p-2 bg-blue-900/20 border border-blue-500/20 rounded">
+                <div className="text-xs text-blue-300 mb-2">
+                  <strong>Quick Fix:</strong>
+                </div>
+                <div className="space-y-1">
+                  <button 
+                    onClick={openLeoWallet}
+                    className="text-xs text-blue-400 hover:text-blue-300 underline block"
+                  >
+                    → Open Leo Wallet Extension
+                  </button>
+                  <button 
+                    onClick={retryConnection}
+                    className="text-xs text-blue-400 hover:text-blue-300 underline block"
+                  >
+                    → Retry Connection (Attempt {retryCount + 1})
+                  </button>
+                </div>
+              </div>
+            )}
+            
             <WalletTroubleshooting />
+            <WalletDiagnostics />
           </div>
         )}
+        {!error && <WalletDiagnostics />}
       </div>
     )
   }
