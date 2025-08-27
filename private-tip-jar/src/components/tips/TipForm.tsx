@@ -18,8 +18,8 @@ export function TipForm({ recipientId, recipientAddress }: { recipientId: string
     setLoading(true)
     try {
       if (!connected || !publicKey) throw new Error('Connect Aleo wallet')
-      const { txId } = await sendPrivateTip({ toAddress: recipientAddress, amount, memo }, walletCtx)
-      setStatus(`Tip sent successfully. Tx: ${txId}`)
+      const { transferTxId, tipTxId } = await sendPrivateTip({ toAddress: recipientAddress, amount, memo }, walletCtx)
+      setStatus(`Transfer tx: ${transferTxId} | Memo tx: ${tipTxId}`)
       setAmount('')
       setMemo('')
     } catch (err: any) {
