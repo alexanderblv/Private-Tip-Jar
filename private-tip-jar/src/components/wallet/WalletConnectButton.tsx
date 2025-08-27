@@ -7,6 +7,12 @@ import { useEffect, useState } from 'react'
 import { WalletTroubleshooting } from './WalletTroubleshooting'
 import { WalletDiagnostics } from './WalletDiagnostics'
 import { WALLET_CONFIG } from '@/lib/wallet-config'
+import { 
+  detectLeoWallet, 
+  tryOpenLeoWallet, 
+  waitForLeoWallet, 
+  createLeoWalletConnectionPrompt 
+} from '@/lib/leo-wallet-helper'
 
 export function WalletConnectButton() {
   const { connected, connect, disconnect, publicKey, select, wallets, wallet } = useWallet()
@@ -14,6 +20,17 @@ export function WalletConnectButton() {
   const [shouldConnect, setShouldConnect] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
+  const [connectionStrategy, setConnectionStrategy] = useState<'normal' | 'delayed' | 'manual'>('normal')
+  const [leoWalletStatus, setLeoWalletStatus] = useState(detectLeoWallet())
+
+  // Update Leo Wallet status periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLeoWalletStatus(detectLeoWallet())
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   // Эффект для подключения после выбора кошелька
   useEffect(() => {
@@ -27,9 +44,22 @@ export function WalletConnectButton() {
           const network = WALLET_CONFIG.network
           console.log('Using network:', network)
           
+          // Try different connection strategies
+          if (connectionStrategy === 'delayed') {
+            // Wait a bit before connecting to allow wallet to initialize
+            console.log('Using delayed connection strategy...')
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          } else if (connectionStrategy === 'manual') {
+            // For manual strategy, show instructions and wait
+            console.log('Using manual connection strategy...')
+            createLeoWalletConnectionPrompt()
+            await new Promise(resolve => setTimeout(resolve, 5000))
+          }
+          
           await connect(DecryptPermission.NoDecrypt, network)
           console.log('Successfully connected!')
           setRetryCount(0) // Reset retry count on success
+          setConnectionStrategy('normal') // Reset strategy
         } catch (error) {
           console.error('Error during connection:', error)
           if (error instanceof Error) {
@@ -55,12 +85,26 @@ export function WalletConnectButton() {
       }
       performConnect()
     }
-  }, [wallet, shouldConnect, connect])
+  }, [wallet, shouldConnect, connect, connectionStrategy])
 
   const doConnect = async () => {
     try {
       setIsConnecting(true)
       setError(null)
+      
+      // Check Leo Wallet status first
+      const status = detectLeoWallet()
+      if (!status.isInstalled) {
+        setError('Leo Wallet extension not installed or not detected. Please install it from https://www.leo.app/')
+        setIsConnecting(false)
+        return
+      }
+
+      if (!status.isReady) {
+        setError('Leo Wallet is not ready. Please make sure the extension is properly installed and enabled.')
+        setIsConnecting(false)
+        return
+      }
       
       // Проверяем доступные кошельки
       console.log('Available wallets:', wallets)
@@ -104,31 +148,39 @@ export function WalletConnectButton() {
   const retryConnection = () => {
     setRetryCount(prev => prev + 1)
     setError(null)
+    
+    // Try different strategies based on retry count
+    if (retryCount >= 2) {
+      setConnectionStrategy('delayed')
+    } else if (retryCount >= 4) {
+      setConnectionStrategy('manual')
+    }
+    
     doConnect()
   }
 
   const clearError = () => {
     setError(null)
+    setRetryCount(0)
+    setConnectionStrategy('normal')
   }
 
   const openLeoWallet = () => {
-    // Try to open Leo Wallet extension
-    if (typeof window !== 'undefined') {
-      // Try multiple ways to open the wallet
-      try {
-        // Method 1: Try to trigger the wallet popup
-        if ((window as any).leoWallet) {
-          (window as any).leoWallet.open()
-        }
-        // Method 2: Try to click the extension icon programmatically
-        const extensionButton = document.querySelector('[data-testid="leo-wallet-button"]') as HTMLElement
-        if (extensionButton) {
-          extensionButton.click()
-        }
-      } catch (e) {
-        console.log('Could not programmatically open Leo Wallet')
-      }
+    const success = tryOpenLeoWallet()
+    if (!success) {
+      // If we can't open it programmatically, show the manual prompt
+      createLeoWalletConnectionPrompt()
     }
+  }
+
+  const forceManualConnection = () => {
+    setConnectionStrategy('manual')
+    createLeoWalletConnectionPrompt()
+    setError('Please manually open your Leo Wallet extension and approve the connection. Then click "Retry Connection" below.')
+  }
+
+  const showConnectionGuide = () => {
+    createLeoWalletConnectionPrompt()
   }
 
   if (!connected) {
@@ -167,6 +219,20 @@ export function WalletConnectButton() {
                   >
                     → Retry Connection (Attempt {retryCount + 1})
                   </button>
+                  <button 
+                    onClick={showConnectionGuide}
+                    className="text-xs text-green-400 hover:text-green-300 underline block"
+                  >
+                    → Show Connection Guide
+                  </button>
+                  {retryCount >= 2 && (
+                    <button 
+                      onClick={forceManualConnection}
+                      className="text-xs text-yellow-400 hover:text-yellow-300 underline block"
+                    >
+                      → Force Manual Connection
+                    </button>
+                  )}
                 </div>
               </div>
             )}
