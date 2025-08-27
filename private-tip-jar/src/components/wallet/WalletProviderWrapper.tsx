@@ -8,11 +8,16 @@ import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo'
 
 export function WalletProviderWrapper({ children }: { children: ReactNode }) {
   const adapters = useMemo(() => [
-    new LeoWalletAdapter(),
+    new LeoWalletAdapter({
+      appName: 'Private Tip Jar'
+    }),
   ], [])
 
   return (
-    <WalletProvider wallets={adapters} autoConnect>
+    <WalletProvider 
+      wallets={adapters} 
+      autoConnect={false}
+    >
       {children}
     </WalletProvider>
   )
