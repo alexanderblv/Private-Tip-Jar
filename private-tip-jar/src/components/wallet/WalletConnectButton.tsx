@@ -5,6 +5,7 @@ import { DecryptPermission, WalletAdapterNetwork } from '@demox-labs/aleo-wallet
 import { LeoWalletName } from '@demox-labs/aleo-wallet-adapter-leo'
 import { useEffect, useState } from 'react'
 import { WalletTroubleshooting } from './WalletTroubleshooting'
+import { WALLET_CONFIG } from '@/lib/wallet-config'
 
 export function WalletConnectButton() {
   const { connected, connect, disconnect, publicKey, select, wallets, wallet } = useWallet()
@@ -20,8 +21,8 @@ export function WalletConnectButton() {
           setError(null)
           console.log('Connecting to selected wallet:', wallet.adapter.name)
           
-          // Get the network from environment or default to testnet
-          const network = (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
+          // Use the configured network
+          const network = WALLET_CONFIG.network
           console.log('Using network:', network)
           
           await connect(DecryptPermission.NoDecrypt, network)
@@ -79,8 +80,7 @@ export function WalletConnectButton() {
       
       // Если кошелек уже выбран, подключаемся напрямую
       if (wallet && wallet.adapter.name === LeoWalletName) {
-        const network = (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
-        await connect(DecryptPermission.NoDecrypt, network)
+        await connect(DecryptPermission.NoDecrypt, WALLET_CONFIG.network)
         setIsConnecting(false)
       } else {
         // Выбираем кошелек и устанавливаем флаг для подключения

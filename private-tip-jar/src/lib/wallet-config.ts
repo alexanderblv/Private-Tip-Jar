@@ -2,7 +2,6 @@ import { WalletAdapterNetwork } from '@demox-labs/aleo-wallet-adapter-base'
 
 export const WALLET_CONFIG = {
   appName: 'Private Tip Jar',
-  appUrl: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000',
   network: (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet,
   autoConnect: false,
 } as const
@@ -12,12 +11,12 @@ export const NETWORK_CONFIG = {
     name: 'Testnet',
     rpcUrl: 'https://api.explorer.aleo.org/v1',
   },
-  [WalletAdapterNetwork.Mainnet]: {
-    name: 'Mainnet',
+  [WalletAdapterNetwork.TestnetBeta]: {
+    name: 'Testnet Beta',
     rpcUrl: 'https://api.explorer.aleo.org/v1',
   },
-  [WalletAdapterNetwork.Devnet]: {
-    name: 'Devnet',
+  [WalletAdapterNetwork.MainnetBeta]: {
+    name: 'Mainnet Beta',
     rpcUrl: 'https://api.explorer.aleo.org/v1',
   },
 } as const
