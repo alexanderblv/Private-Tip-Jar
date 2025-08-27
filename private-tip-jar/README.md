@@ -1,26 +1,40 @@
-# Private Tip Jar (Aleo)
+# Private Tip Jar (Aleo Testnet Beta)
 
-A minimal private tipping app for service workers, built on Next.js and Vercel with Aleo wallet integration. Profiles and listing are stored in Vercel KV. Tip flows are private via Aleo smart contracts (wire up your deployed program IDs).
+A minimal private tipping app for service workers, built on Next.js and Vercel with Aleo wallet integration. Profiles and listing are stored in Vercel KV. Tip flows are private via Aleo smart contracts on Testnet Beta.
 
 ## Stack
 - Next.js 14 (App Router, TypeScript)
 - Tailwind CSS
 - Vercel KV (profiles index)
 - Aleo Wallet Adapter (Leo + WalletConnect)
+- Aleo Testnet Beta Network
+
+## Network Configuration
+This app is configured to work with **Aleo Testnet Beta**:
+- **Network Name**: Aleo Testnet Beta
+- **RPC Endpoint**: https://testnetbeta.aleorpc.com
+- **Network ID**: Testnet Beta
+- **Chain Status**: Active and Supported
 
 ## Local Setup
 ```bash
 npm install
-cp .env.example .env.local
-# Fill in KV_* and WalletConnect project id (optional)
+cp .env.local .env.local
+# The .env.local file is already configured for Aleo Testnet Beta
 npm run dev
 ```
 
-## Environment
-- KV_URL, KV_REST_API_URL, KV_REST_API_TOKEN, KV_REST_API_READ_ONLY_TOKEN: from Vercel KV
-- NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: from WalletConnect Cloud (optional)
-- NEXT_PUBLIC_TIP_PROGRAM_ID: your Aleo program id
-- NEXT_PUBLIC_TIP_FUNCTION_NAME: function to invoke for private tip
+## Environment Variables
+### Required for Aleo Testnet Beta:
+- `NEXT_PUBLIC_ALEO_NETWORK=Testnet` - Network configuration
+- `NEXT_PUBLIC_ALEO_RPC_ENDPOINT=https://testnetbeta.aleorpc.com` - RPC endpoint
+- `NEXT_PUBLIC_ALEO_NETWORK_ID=Testnet Beta` - Network identifier
+
+### Optional:
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`: from WalletConnect Cloud
+- `NEXT_PUBLIC_TIP_PROGRAM_ID`: your deployed Aleo program id
+- `NEXT_PUBLIC_TIP_FUNCTION_NAME`: function to invoke for private tip
+- `KV_URL, KV_REST_API_URL, KV_REST_API_TOKEN, KV_REST_API_READ_ONLY_TOKEN`: from Vercel KV
 
 ## Deploy
 - Push to GitHub and import in Vercel

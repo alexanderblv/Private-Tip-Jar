@@ -2,7 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
+  "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_ALEO_NETWORK": "testnet"
+    "NEXT_PUBLIC_ALEO_NETWORK": "Testnet",
+    "NEXT_PUBLIC_ALEO_RPC_ENDPOINT": "https://testnetbeta.aleorpc.com",
+    "NEXT_PUBLIC_ALEO_NETWORK_ID": "Testnet Beta"
   }
 }
