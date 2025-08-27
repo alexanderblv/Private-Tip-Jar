@@ -1,51 +1,22 @@
 'use client'
 
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWalletModal } from '@demox-labs/aleo-wallet-adapter-reactui'
 import { DecryptPermission, WalletAdapterNetwork } from '@demox-labs/aleo-wallet-adapter-base'
 import { LeoWalletName } from '@demox-labs/aleo-wallet-adapter-leo'
 import { useEffect, useState } from 'react'
 
 export function WalletConnectButton() {
   const { connected, connect, disconnect, publicKey, select, wallets, wallet } = useWallet()
+  const { setVisible } = useWalletModal()
   const [isConnecting, setIsConnecting] = useState(false)
-  const [shouldConnect, setShouldConnect] = useState(false)
 
-  // Эффект для подключения после выбора кошелька
-  useEffect(() => {
-    if (shouldConnect && wallet && wallet.adapter.name === LeoWalletName) {
-      const performConnect = async () => {
-        try {
-          console.log('Connecting to selected wallet:', wallet.adapter.name)
-          await connect(
-            DecryptPermission.NoDecrypt,
-            (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
-          )
-          console.log('Successfully connected!')
-        } catch (error) {
-          console.error('Error during connection:', error)
-          if (error instanceof Error) {
-            if (error.message.includes('NETWORK_NOT_GRANTED')) {
-              alert('Please grant network permission in your Leo Wallet')
-            } else {
-              alert(`Connection error: ${error.message}`)
-            }
-          }
-        } finally {
-          setIsConnecting(false)
-          setShouldConnect(false)
-        }
-      }
-      performConnect()
-    }
-  }, [wallet, shouldConnect, connect])
-
-  const doConnect = async () => {
+  const handleConnect = async () => {
     try {
       setIsConnecting(true)
       
       // Проверяем доступные кошельки
       console.log('Available wallets:', wallets)
-      console.log('Current wallet:', wallet)
       
       // Находим Leo кошелек
       const leoWallet = wallets.find(w => w.adapter.name === LeoWalletName)
@@ -62,35 +33,76 @@ export function WalletConnectButton() {
       // Если кошелек уже выбран, подключаемся напрямую
       if (wallet && wallet.adapter.name === LeoWalletName) {
         await connect(
-          DecryptPermission.NoDecrypt,
+          DecryptPermission.UponRequest,
           (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
         )
-        setIsConnecting(false)
       } else {
-        // Выбираем кошелек и устанавливаем флаг для подключения
+        // Выбираем кошелек и подключаемся
         console.log('Selecting Leo Wallet...')
         select(LeoWalletName)
-        setShouldConnect(true)
+        
+        // Небольшая задержка для выбора кошелька
+        setTimeout(async () => {
+          try {
+            await connect(
+              DecryptPermission.UponRequest,
+              (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
+            )
+          } catch (error) {
+            console.error('Error during connection:', error)
+            if (error instanceof Error) {
+              if (error.message.includes('NETWORK_NOT_GRANTED')) {
+                alert('Please grant network permission in your Leo Wallet')
+              } else {
+                alert(`Connection error: ${error.message}`)
+              }
+            }
+          }
+        }, 100)
       }
     } catch (error) {
-      console.error('Error in doConnect:', error)
+      console.error('Error in handleConnect:', error)
+      if (error instanceof Error) {
+        alert(`Connection error: ${error.message}`)
+      }
+    } finally {
       setIsConnecting(false)
+    }
+  }
+
+  const handleDisconnect = () => {
+    try {
+      disconnect()
+    } catch (error) {
+      console.error('Error disconnecting:', error)
     }
   }
 
   if (!connected) {
     return (
-      <button 
-        onClick={doConnect} 
-        disabled={isConnecting}
-        className="px-3 py-1.5 rounded border border-white/20 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-      </button>
+      <div className="flex gap-2">
+        <button 
+          onClick={handleConnect} 
+          disabled={isConnecting}
+          className="px-3 py-1.5 rounded border border-white/20 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/5 transition-colors"
+        >
+          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        </button>
+        <button 
+          onClick={() => setVisible(true)}
+          className="px-3 py-1.5 rounded bg-blue-600 text-sm hover:bg-blue-700 transition-colors"
+        >
+          Wallet Modal
+        </button>
+      </div>
     )
   }
+  
   return (
-    <button onClick={() => disconnect()} className="px-3 py-1.5 rounded bg-white/10 text-sm">
+    <button 
+      onClick={handleDisconnect} 
+      className="px-3 py-1.5 rounded bg-white/10 text-sm hover:bg-white/20 transition-colors"
+    >
       {publicKey?.slice(0,6)}...{publicKey?.slice(-4)}
     </button>
   )
