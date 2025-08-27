@@ -16,16 +16,19 @@ export function WalletConnectButton() {
       const performConnect = async () => {
         try {
           console.log('Connecting to selected wallet:', wallet.adapter.name)
+          console.log('Using network:', WalletAdapterNetwork.Testnet3)
           await connect(
             DecryptPermission.NoDecrypt,
-            (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
+            WalletAdapterNetwork.Testnet3
           )
           console.log('Successfully connected!')
         } catch (error) {
           console.error('Error during connection:', error)
           if (error instanceof Error) {
             if (error.message.includes('NETWORK_NOT_GRANTED')) {
-              alert('Please grant network permission in your Leo Wallet')
+              alert('Network permission denied. Please:\n1. Open Leo Wallet\n2. Go to Settings > Network\n3. Select "Testnet3"\n4. Grant network permission when prompted')
+            } else if (error.message.includes('NETWORK')) {
+              alert('Network configuration error. Please ensure Leo Wallet is configured for Testnet3 network.')
             } else {
               alert(`Connection error: ${error.message}`)
             }
@@ -46,6 +49,7 @@ export function WalletConnectButton() {
       // Проверяем доступные кошельки
       console.log('Available wallets:', wallets)
       console.log('Current wallet:', wallet)
+      console.log('Environment network setting:', process.env.NEXT_PUBLIC_ALEO_NETWORK)
       
       // Находим Leo кошелек
       const leoWallet = wallets.find(w => w.adapter.name === LeoWalletName)
@@ -56,14 +60,23 @@ export function WalletConnectButton() {
         return
       }
       
+      // Проверяем, что кошелек готов к подключению
+      if (leoWallet.readyState !== 'Installed') {
+        console.error('Leo Wallet not ready:', leoWallet.readyState)
+        alert('Leo Wallet is not ready. Please make sure it is properly installed and unlocked.')
+        setIsConnecting(false)
+        return
+      }
+      
       // Проверяем готовность кошелька
       console.log('Leo wallet ready state:', leoWallet.readyState)
       
       // Если кошелек уже выбран, подключаемся напрямую
       if (wallet && wallet.adapter.name === LeoWalletName) {
+        console.log('Direct connection to Leo Wallet on Testnet3')
         await connect(
           DecryptPermission.NoDecrypt,
-          (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
+          WalletAdapterNetwork.Testnet3
         )
         setIsConnecting(false)
       } else {
