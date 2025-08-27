@@ -37,9 +37,9 @@ export function WalletConnectButton() {
           if (error instanceof Error) {
             console.error('Full error object:', error)
             if (error.message.includes('NETWORK_NOT_GRANTED')) {
-              alert('Network permission denied. Please:\n1. Open Leo Wallet\n2. Go to Settings > Network\n3. Select "Testnet"\n4. Grant network permission when prompted')
+              alert('Network permission denied. Please:\n1. Open Leo Wallet\n2. Go to Settings > Network\n3. Select "Testnet3"\n4. Grant network permission when prompted')
             } else if (error.message.includes('NETWORK')) {
-              alert('Network configuration error. Please ensure Leo Wallet is configured for Testnet network.')
+              alert('Network configuration error. Please ensure Leo Wallet is configured for Testnet3 network.')
             } else if (error.message.includes('unknown error')) {
               alert('Connection failed. Please try:\n1. Refreshing the page\n2. Ensuring Leo Wallet is unlocked\n3. Checking if Leo Wallet is properly installed')
             } else {

@@ -7,14 +7,14 @@
 
 ## Network Configuration
 
-This application is configured to work with **Testnet**. Make sure your Leo Wallet is set to the correct network:
+This application is configured to work with **Testnet3**. Make sure your Leo Wallet is set to the correct network:
 
-### Steps to configure Leo Wallet for Testnet:
+### Steps to configure Leo Wallet for Testnet3:
 
 1. Open Leo Wallet extension
 2. Click on the settings icon (gear) in the top right
 3. Go to **Network** section
-4. Select **"Testnet"** from the network options
+4. Select **"Testnet3"** from the network options
 5. Save the settings
 
 ## Connecting to the Application
@@ -27,7 +27,7 @@ This application is configured to work with **Testnet**. Make sure your Leo Wall
 ## Troubleshooting
 
 ### "NETWORK_NOT_GRANTED" Error
-- Ensure Leo Wallet is set to **Testnet** network
+- Ensure Leo Wallet is set to **Testnet3** network
 - Check that you've granted network permission in Leo Wallet
 - Try refreshing the page and reconnecting
 
@@ -44,8 +44,8 @@ This application is configured to work with **Testnet**. Make sure your Leo Wall
 ## Development
 
 For development, the application uses:
-- Network: Testnet
-- Environment variable: `NEXT_PUBLIC_ALEO_NETWORK=testnet`
+- Network: Testnet3
+- Environment variable: `NEXT_PUBLIC_ALEO_NETWORK=testnet3`
 
 ## Support
 
