@@ -9,8 +9,7 @@ import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo'
 export function WalletProviderWrapper({ children }: { children: ReactNode }) {
   const adapters = useMemo(() => [
     new LeoWalletAdapter({
-      appName: 'Private Tip Jar',
-      network: process.env.NEXT_PUBLIC_ALEO_NETWORK || 'Testnet'
+      appName: 'Private Tip Jar'
     }),
   ], [])
 
