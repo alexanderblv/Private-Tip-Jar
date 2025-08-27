@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { WalletInstructions } from '@/components/wallet/WalletInstructions'
 
 export default function Page() {
   return (
@@ -13,6 +14,8 @@ export default function Page() {
           <Link href="/profile" className="px-4 py-2 rounded border border-white/20">Create Tip Jar</Link>
         </div>
       </section>
+      
+      <WalletInstructions />
     </div>
   )
 }
