@@ -2,15 +2,25 @@
 
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import { DecryptPermission, WalletAdapterNetwork } from '@demox-labs/aleo-wallet-adapter-base'
+import { LeoWalletName } from '@demox-labs/aleo-wallet-adapter-leo'
 
 export function WalletConnectButton() {
-  const { connected, connect, disconnect, publicKey } = useWallet()
+  const { connected, connect, disconnect, publicKey, select, wallets } = useWallet()
 
-  const doConnect = () =>
-    connect(
-      DecryptPermission.NoDecrypt,
-      (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
-    )
+  const doConnect = async () => {
+    try {
+      // Сначала выбираем кошелек Leo
+      await select(LeoWalletName)
+      
+      // Затем подключаемся
+      await connect(
+        DecryptPermission.NoDecrypt,
+        (process.env.NEXT_PUBLIC_ALEO_NETWORK as WalletAdapterNetwork) || WalletAdapterNetwork.Testnet
+      )
+    } catch (error) {
+      console.error('Error connecting wallet:', error)
+    }
+  }
 
   if (!connected) {
     return (
