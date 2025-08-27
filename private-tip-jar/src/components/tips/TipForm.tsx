@@ -5,7 +5,8 @@ import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import { sendPrivateTip } from '@/lib/aleo'
 
 export function TipForm({ recipientId, recipientAddress }: { recipientId: string; recipientAddress: string }) {
-  const { publicKey, connected } = useWallet()
+  const walletCtx = useWallet()
+  const { publicKey, connected } = walletCtx
   const [amount, setAmount] = useState<string>('')
   const [memo, setMemo] = useState<string>('')
   const [status, setStatus] = useState<string>('')
@@ -17,8 +18,8 @@ export function TipForm({ recipientId, recipientAddress }: { recipientId: string
     setLoading(true)
     try {
       if (!connected || !publicKey) throw new Error('Connect Aleo wallet')
-      await sendPrivateTip({ toAddress: recipientAddress, amount, memo })
-      setStatus('Tip sent successfully')
+      const { txId } = await sendPrivateTip({ toAddress: recipientAddress, amount, memo }, walletCtx)
+      setStatus(`Tip sent successfully. Tx: ${txId}`)
       setAmount('')
       setMemo('')
     } catch (err: any) {
